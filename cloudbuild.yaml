@@ -1,0 +1,29 @@
+steps:
+
+  # build docker image
+  - name: "gcr.io/cloud-builders/docker"
+    args: [
+      "build",
+      "-t", "asia-northeast1-docker.pkg.dev/$PROJECT_ID/cloudrun-job/image:${SHORT_SHA}",
+       "."
+    ]
+
+  # Push the image
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "asia-northeast1-docker.pkg.dev/${PROJECT_ID}/cloudrun-job/image:${SHORT_SHA}"]
+
+  # deploy cloud run
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args: [
+      "run", 
+      "deploy",
+      "cloudrun-job",
+      "--image",
+      "asia-northeast1-docker.pkg.dev/${PROJECT_ID}/cloudrun-job/image:${SHORT_SHA}",
+      "--region",
+      "asia-northeast1"
+    ]
+
+images:
+  - "asia-northeast1-docker.pkg.dev/${PROJECT_ID}/cloudrun-job/image:${SHORT_SHA}"
